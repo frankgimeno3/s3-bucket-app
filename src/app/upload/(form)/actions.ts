@@ -69,14 +69,27 @@ export async function uploadFile(prevState: any, formData: FormData): Promise<{ 
     return { status: "error", message: "Failed to upload file." };
   }
 }
-
-export async function listObjectsInBucket(): Promise<string[]> { // Cambiado el tipo de retorno
+export async function listObjectsInBucket(): Promise<{ 
+  Key: string; 
+  LastModified: Date; 
+  ETag: string; 
+  Size: number; 
+  StorageClass: string; 
+  imageUrl: string; 
+}[]> { // Cambiado el tipo de retorno
   const params = {
     Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,
   };
 
   const command = new ListObjectsV2Command(params);
-  const imageUrls: string[] = []; // Inicializamos un array para almacenar las URLs
+  const imageObjects: { 
+    Key: string; 
+    LastModified: Date; 
+    ETag: string; 
+    Size: number; 
+    StorageClass: string; 
+    imageUrl: string; 
+  }[] = []; // Inicializamos un array para almacenar los objetos
 
   try {
     const response = await s3Client.send(command);
@@ -85,7 +98,16 @@ export async function listObjectsInBucket(): Promise<string[]> { // Cambiado el 
         // Asegúrate de que el objeto tenga una extensión de imagen válida
         if (object.Key && (object.Key.endsWith('.jpg') || object.Key.endsWith('.jpeg') || object.Key.endsWith('.png'))) {
           const imageUrl = `https://${process.env.NEXT_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_AWS_S3_REGION}.amazonaws.com/${object.Key}`;
-          imageUrls.push(imageUrl); // Agregamos la URL al array
+          
+          // Agregamos el objeto con todos sus datos al array
+          imageObjects.push({
+            Key: object.Key,
+            LastModified: object.LastModified ?? new Date(), // Valor predeterminado si es undefined
+            ETag: object.ETag ?? '', // Valor predeterminado si es undefined
+            Size: object.Size ?? 0, // Valor predeterminado si es undefined
+            StorageClass: object.StorageClass ?? 'STANDARD', // Valor predeterminado si es undefined
+            imageUrl: imageUrl,
+          });
         }
       });
     }
@@ -93,5 +115,5 @@ export async function listObjectsInBucket(): Promise<string[]> { // Cambiado el 
     console.error("Error listing objects:", error);
   }
 
-  return imageUrls; // Retornamos el array de URLs
+  return imageObjects; // Retornamos el array de objetos
 }

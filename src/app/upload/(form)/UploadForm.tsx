@@ -1,5 +1,5 @@
 import { useFormState } from "react-dom"; 
-import { uploadFile, listObjectsInBucket } from "@/app/upload/(form)/actions"; 
+import { uploadFile, listObjectsInBucket, deleteObjectFromS3 } from "@/app/upload/(form)/actions"; 
 import { SubmitButton } from "./Submit-button";
 import { useState } from "react";
 
@@ -21,6 +21,17 @@ export function UploadForm() {
     setImageObjects(objects); // Guardamos los objetos en el estado
   };
 
+  const handleDelete = async (key: string) => {
+    try {
+      await deleteObjectFromS3(key);
+      // Recargar la página después de eliminar el objeto
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
+  };
+  
+
   return (
     <div className="flex flex-col p-5">
       <form action={formAction}>
@@ -37,9 +48,8 @@ export function UploadForm() {
       )}
       <div className="mt-4 flex flex-wrap gap-4"> {/* Espacio para las imágenes */}
         {imageObjects.map((obj, index) => (
-          <div key={index} className="w-44 h-44 rounded shadow overflow-hidden">
+          <div key={index} className="w-44 h-44 rounded shadow overflow-hidden relative">
             <img src={obj.imageUrl} alt={`Uploaded Image ${index}`} className="w-full h-full object-cover" />
-            {/* Opcional: Puedes agregar más información del objeto aquí */}
             <div className="p-2 text-sm text-gray-600">
               <p>Key: {obj.Key}</p>
               <p>Size: {obj.Size} bytes</p>
@@ -47,6 +57,12 @@ export function UploadForm() {
               <p>Last Modified: {obj.LastModified?.toLocaleString()}</p>
               <p>Storage Class: {obj.StorageClass}</p>
             </div>
+            <button 
+              onClick={() => handleDelete(obj.Key)} 
+              className="absolute bottom-2 right-2 p-1 bg-red-500 text-white rounded"
+            >
+              Eliminar
+            </button>
           </div>
         ))}
       </div>

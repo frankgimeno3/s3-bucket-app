@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 // Definición de tipos para el archivo
 interface File {
@@ -115,5 +116,22 @@ export async function listObjectsInBucket(): Promise<{
     console.error("Error listing objects:", error);
   }
 
-  return imageObjects; // Retornamos el array de objetos
+  return imageObjects; 
+}
+
+
+export async function deleteObjectFromS3(key: string): Promise<void> {
+  const params = {
+    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,
+    Key: key,
+  };
+
+  const command = new DeleteObjectCommand(params);
+  try {
+    await s3Client.send(command);
+    console.log(`Object ${key} deleted successfully.`);
+  } catch (error) {
+    console.error("Error deleting object:", error);
+    throw new Error(`Failed to delete object: ${error}`);
+  }
 }

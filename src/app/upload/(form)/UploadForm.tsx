@@ -9,13 +9,13 @@ export function UploadForm() {
   const [state, formAction] = useFormState(uploadFile, initialState);
 
   return (
-    <div className="form-wrapper">
+    <div className="flex flex-col p-5">
       <form action={formAction}>
-        <input type="file" id="file" name="file" accept="images/*" />
+        <input type="file" id="file" name="file" accept="images/*" className="p-2" />
         <SubmitButton />
       </form>
       {state?.status && (
-        <div className={`state-message ${state?.status}`}>
+        <div className={`text-red`}>
           {state?.message}
         </div>
       )}

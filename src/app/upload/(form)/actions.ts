@@ -1,10 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import sharp from "sharp";
-import { ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+ import sharp from "sharp";
+import {ListObjectsV2Command, S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";  
 
 // Definición de tipos para el archivo
 interface File {
@@ -133,5 +131,22 @@ export async function deleteObjectFromS3(key: string): Promise<void> {
   } catch (error) {
     console.error("Error deleting object:", error);
     throw new Error(`Failed to delete object: ${error}`);
+  }
+}
+
+export async function editObjectInS3(key: string, fileBuffer: Buffer): Promise<void> {
+  const params = {
+    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,
+    Key: key,
+    Body: fileBuffer,
+    ContentType: "image/jpg",
+  };
+
+  const putCommand = new PutObjectCommand(params);
+  try {
+    await s3Client.send(putCommand);
+    console.log("File edited successfully:", key);
+  } catch (error) {
+    throw new Error(`Failed to edit object: ${error}`);
   }
 }

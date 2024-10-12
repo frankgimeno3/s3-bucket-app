@@ -1,95 +1,36 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import { useRouter } from "next/navigation"
+import Imagen from "./Imagen"
+// import { imagesFeedQuery } from "@/db/queries/imagesFeed"
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3"
 
-export default function Home() {
+ 
+export default async function Home() {
+
+  // const images = await imagesFeedQuery.execute()
+
+  // const s3Client = new S3Client({
+  //   region: process.env.AWS_BUCKET_REGION!,
+  //   credentials: {
+  //     accessKeyId: process.env.AWS_ACCESS_KEY!,
+  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  //   },
+  // })
+
+  const router = useRouter()
+  const handleAddImages = ()=>{
+    router.push("/upload")
+  }
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <main className="min-h-screen text-white p-12">
+     <p className="text-2xl font-bold">Ejemplo de crud con S3</p>
+     <button className="bg-white hover:bg-gray-100 rounded p-2 px-3 m-2 mb-24 mt-6 text-gray-600" onClick={()=>{handleAddImages()}}>Subir imagenes</button>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+     <p className="text-2xl font-bold" >Imagenes subidas</p>
+     <div className="bg-gray-900">
+      {/* <Imagen imageSrc={imageSrc}/> */}
+     </div>
     </main>
   )
 }

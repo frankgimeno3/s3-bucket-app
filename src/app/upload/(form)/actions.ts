@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import sharp from "sharp";
+import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 // Definición de tipos para el archivo
 interface File {
@@ -35,7 +36,7 @@ async function uploadFileToS3(file: Buffer, fileName: string): Promise<string> {
     .toBuffer();
 
   const params = {
-    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string, // Asegúrate de que la variable de entorno esté definida
+    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,  
     Key: `${fileName}`,
     Body: fileBuffer,
     ContentType: "image/jpg",
@@ -67,4 +68,30 @@ export async function uploadFile(prevState: any, formData: FormData): Promise<{ 
   } catch (error) {
     return { status: "error", message: "Failed to upload file." };
   }
+}
+
+export async function listObjectsInBucket(): Promise<string[]> { // Cambiado el tipo de retorno
+  const params = {
+    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,
+  };
+
+  const command = new ListObjectsV2Command(params);
+  const imageUrls: string[] = []; // Inicializamos un array para almacenar las URLs
+
+  try {
+    const response = await s3Client.send(command);
+    if (response.Contents) {
+      response.Contents.forEach((object) => {
+        // Asegúrate de que el objeto tenga una extensión de imagen válida
+        if (object.Key && (object.Key.endsWith('.jpg') || object.Key.endsWith('.jpeg') || object.Key.endsWith('.png'))) {
+          const imageUrl = `https://${process.env.NEXT_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_AWS_S3_REGION}.amazonaws.com/${object.Key}`;
+          imageUrls.push(imageUrl); // Agregamos la URL al array
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error listing objects:", error);
+  }
+
+  return imageUrls; // Retornamos el array de URLs
 }

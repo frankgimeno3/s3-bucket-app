@@ -1,22 +1,11 @@
 "use client"
 import { useRouter } from "next/navigation"
-import Imagen from "./Imagen"
-// import { imagesFeedQuery } from "@/db/queries/imagesFeed"
+ 
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3"
 
  
 export default async function Home() {
-
-  // const images = await imagesFeedQuery.execute()
-
-  // const s3Client = new S3Client({
-  //   region: process.env.AWS_BUCKET_REGION!,
-  //   credentials: {
-  //     accessKeyId: process.env.AWS_ACCESS_KEY!,
-  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  //   },
-  // })
-
+ 
   const router = useRouter()
   const handleAddImages = ()=>{
     router.push("/upload")
